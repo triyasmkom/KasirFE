@@ -26,7 +26,8 @@ class AuthService {
   }
 
   Future<String?> getToken() async {
-    return await storage.read(key: 'jwt_token');
+    String? token = await storage.read(key: 'jwt_token');
+    return token;
   }
 
   // Fungsi untuk mengambil role dari token JWT

@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:kasir_app/models/ProductModel.dart';
 import 'package:kasir_app/pages/admin/produk/TambahEditProduk.dart';
+import 'package:kasir_app/services/admin_service.dart';
 
-class ManajemenProduk extends StatelessWidget {
+class ManajemenProduk extends StatefulWidget {
   const ManajemenProduk({super.key});
+
+  @override
+  State<ManajemenProduk> createState() => _ManajemenProdukState();
+}
+
+class _ManajemenProdukState extends State<ManajemenProduk> {
+  late Future<List<ProductModel>> products;
+  void reloadProduct() {
+    setState(() {
+      products = AdminService().getAllProducts();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    products = AdminService().getAllProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,76 +31,113 @@ class ManajemenProduk extends StatelessWidget {
         title: const Text("Manajemen Produk"),
         actions: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               // Tambah produk baru
-              Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TambahEditProduk(),
                 ),
               );
+
+              // Cek jika ada perubahan data
+              if (result == true) {
+                reloadProduct(); // Memuat ulang data pengguna
+              }
             },
             icon: const Icon(Icons.add),
           )
         ],
       ),
-      body: ListView.builder(
-        itemCount: 10, // jumlah produk yang ada
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: Text("Produk $index"),
-            subtitle: Text("Harga: ${index * 1000}"),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    // Edit Produk
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TambahEditProduk(isEdit: true),
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.edit),
-                ),
-                IconButton(
-                    onPressed: () {
-                      // Hapus Produk
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("Konfirmasi"),
-                            content:
-                                Text("Apakah anda yakin menghapus produk ini?"),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  // Hapus produk dari daftar
-                                },
-                                child: Text("Ya"),
+      body: FutureBuilder<List<ProductModel>>(
+          future: products,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              ); // Tampilkan loading
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              ); // Tampilkan error
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text('Tidak ada produk ditemukan.'),
+              ); // Tampilkan pesan jika tidak ada pengguna
+            }
+
+            return ListView.builder(
+              itemCount: snapshot.data!.length, // jumlah produk yang ada
+              itemBuilder: (context, index) {
+                ProductModel product = snapshot.data![index];
+                return ListTile(
+                  leading: const Icon(Icons.shopping_bag),
+                  title: Text(product.name),
+                  subtitle:
+                      Text("Harga: ${product.price} \nStok : ${product.stock}"),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          // Edit Produk
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TambahEditProduk(
+                                isEdit: true,
+                                productData: product,
+                                productId: product.id.toString(),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text("Tidak"),
-                              )
-                            ],
+                            ),
                           );
+
+                          // Cek jika ada perubahan data
+                          if (result == true) {
+                            reloadProduct(); // Memuat ulang data pengguna
+                          }
                         },
-                      );
-                    },
-                    icon: Icon(Icons.delete)),
-              ],
-            ),
-          );
-        },
-      ),
+                        icon: Icon(Icons.edit),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            // Hapus Produk
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Konfirmasi"),
+                                  content: const Text(
+                                      "Apakah anda yakin menghapus produk ini?"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () async {
+                                        Navigator.of(context).pop();
+                                        // Hapus produk dari daftar
+                                        await AdminService()
+                                            .deleteProduct(product.id);
+                                        reloadProduct();
+                                      },
+                                      child: Text("Ya"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text("Tidak"),
+                                    )
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.delete)),
+                    ],
+                  ),
+                );
+              },
+            );
+          }),
     );
   }
 }

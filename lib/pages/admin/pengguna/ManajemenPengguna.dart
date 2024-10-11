@@ -77,7 +77,7 @@ class _ManajemenPenggunaState extends State<ManajemenPengguna> {
               return ListTile(
                 leading: const Icon(Icons.person),
                 title: Text(user.name),
-                subtitle: Text("Role: ${user.role}"),
+                subtitle: Text("Email: ${user.email} \nRole: ${user.role}"),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
