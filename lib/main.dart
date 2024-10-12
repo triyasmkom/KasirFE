@@ -3,7 +3,10 @@ import 'package:kasir_app/pages/admin/AdminDashboard.dart';
 import 'package:kasir_app/pages/kasir/CheckoutPage.dart';
 import 'package:kasir_app/pages/kasir/KasirDashboard.dart';
 import 'package:kasir_app/pages/LoginScreen.dart';
+import 'package:kasir_app/pages/kasir/TransactionHistoryPage.dart';
+import 'package:kasir_app/pages/kasir/TransactionItems.dart';
 import 'package:kasir_app/pages/kasir/TransactionSuccessPage.dart';
+import 'package:kasir_app/pages/kasir/UserInfoPage.dart';
 // import 'package:kasir_app/pages/admin/produk/ManajemenProduk.dart';
 
 void main() {
@@ -28,6 +31,9 @@ class MyApp extends StatelessWidget {
         "/kasir": (context) => KasirDashboard(),
         "/admin": (context) => AdminDashboard(),
         "/transaction_success": (context) => const TransactionSuccessPage(),
+        '/user_info': (context) => UserInfoPage(), // Halaman info user
+        '/transaction_history': (context) => TransactionHistoryPage(),
+        '/transaction_item': (context) => TransactionItems(),
         // "/manajemenProduk": (context) => const ManajemenProduk(),
       },
       onGenerateRoute: (settings) {

@@ -55,6 +55,20 @@ class _KasirDashboardState extends State<KasirDashboard> {
     );
   }
 
+  void userInfo() {
+    Navigator.pushNamed(
+      context,
+      "/user_info",
+    );
+  }
+
+  void transactionHistory() {
+    Navigator.pushNamed(
+      context,
+      "/transaction_history",
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,9 +112,10 @@ class _KasirDashboardState extends State<KasirDashboard> {
                     ),
                     itemBuilder: (context, index) {
                       if (index >= snapshot.data!.length) {
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       }
                       String produk = snapshot.data![index].name;
+                      String kode = snapshot.data![index].kode;
                       double harga = snapshot.data![index].price.toDouble();
                       return Card(
                         child: Column(
@@ -113,6 +128,7 @@ class _KasirDashboardState extends State<KasirDashboard> {
                             ),
                             Text(produk),
                             Text("Rp ${harga.toStringAsFixed(0)}"),
+                            Text("Kode : $kode"),
                             ElevatedButton(
                                 onPressed: () {
                                   // Tambahkan keranjang
@@ -139,6 +155,22 @@ class _KasirDashboardState extends State<KasirDashboard> {
                       ElevatedButton(
                         onPressed: cart.isEmpty ? null : checkOut,
                         child: const Text("Checkout"),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: userInfo,
+                        child: const Text("Info User"),
+                      ),
+                      ElevatedButton(
+                        onPressed: transactionHistory,
+                        child: const Text("Riwayat Transaksi"),
                       ),
                     ],
                   ),
